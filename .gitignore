@@ -5,3 +5,8 @@ publisher/schedule_log.json
 __pycache__/
 *.log
 *.zip
+assets/photos/
+carousels/assets/fonts/
+carousels/assets/headshot.jpg
+carousels/workspace/*/reference/
+carousels/workspace/*/*.png
