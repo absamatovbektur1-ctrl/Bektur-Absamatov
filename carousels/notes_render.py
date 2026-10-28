@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-iPhone Notes-style carousel renderer (1080x1350, light mode).
+iPhone Notes-style renderer: carousel 1080x1350, or stories 1080x1920 with "story": true.
 
     python3 carousels/notes_render.py carousels/workspace/<slug>
 
@@ -13,7 +13,8 @@ config.json:
      "blocks": [
        {"p": "Абзац. ==Выделение маркером== поддерживается."},
        {"check": ["пункт", "пункт"], "done": [0]},
-       {"img": "photo.jpg"},
+       {"h": "Крупная строка"},
+       {"img": "photo.jpg", "focus": 0.5},
        {"space": 30}
      ]}
   ]
@@ -29,6 +30,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 W, H = 1080, 1350
+TOP, BOT = 0, 0                 # story mode: keep clear of Instagram UI
 ROOT = Path(__file__).resolve().parent
 FONT = ROOT / "assets" / "fonts" / "Inter.ttf"
 PHOTOS = ROOT.parent / "assets" / "photos"
@@ -54,10 +56,11 @@ F_DATE = font(28, "Medium")
 F_TITLE = font(62, "Bold")
 F_BODY = font(44, "Regular")
 F_FOOT = font(28, "Medium")
+LH_TITLE, LH_BODY = 78, 62
 
 
 def nav_bar(d):
-    y = 64
+    y = 64 + TOP
     # back chevron + label
     d.line([(PAD + 18, y - 18), (PAD, y), (PAD + 18, y + 18)], fill=YELLOW, width=6, joint="curve")
     d.text((PAD + 34, y), "Заметки", font=F_NAV, fill=YELLOW, anchor="lm")
@@ -75,7 +78,7 @@ def nav_bar(d):
 
 
 def toolbar(d, footer):
-    y = H - 70
+    y = H - 70 - BOT
     d.line([(0, y - 46), (W, y - 46)], fill=HAIR, width=2)
     # checklist icon
     x = PAD + 10
@@ -151,25 +154,28 @@ def render_slide(cfg, slide, idx, total, src_dir):
     img = Image.new("RGBA", (W, H), BG + (255,))
     d = ImageDraw.Draw(img)
     nav_bar(d)
-    y = 140
+    y = 140 + TOP
     if idx == 0 and cfg.get("date"):
         d.text((W // 2, y), cfg["date"], font=F_DATE, fill=GRAY, anchor="mt")
         y += 70
     else:
         y += 20
     if slide.get("title"):
-        d, y = draw_words(img, d, slide["title"], PAD, y, F_TITLE, INK, TEXT_W, 78)
+        d, y = draw_words(img, d, slide["title"], PAD, y, F_TITLE, INK, TEXT_W, LH_TITLE)
         y += 26
-    bottom = H - 140
-    lh = 62
+    bottom = H - 140 - BOT
+    lh = LH_BODY
     for b in slide.get("blocks", []):
         if "p" in b:
             d, y = draw_words(img, d, b["p"], PAD, y, F_BODY, INK, TEXT_W, lh)
             y += 30
+        elif "h" in b:
+            d, y = draw_words(img, d, b["h"], PAD, y, F_TITLE, INK, TEXT_W, LH_TITLE)
+            y += 30
         elif "check" in b:
             done = set(b.get("done", []))
             for i, item in enumerate(b["check"]):
-                cx, cy = PAD + 22, y + 30
+                cx, cy = PAD + 22, y + lh // 2
                 if i in done:
                     d.ellipse([cx - 22, cy - 22, cx + 22, cy + 22], fill=YELLOW)
                     d.line([(cx - 10, cy + 1), (cx - 3, cy + 9), (cx + 11, cy - 8)], fill=BG, width=5)
@@ -200,8 +206,12 @@ def render_slide(cfg, slide, idx, total, src_dir):
 def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__)
+    global H, TOP, BOT, F_TITLE, F_BODY, LH_TITLE, LH_BODY
     src = Path(sys.argv[1])
     cfg = json.loads((src / "config.json").read_text(encoding="utf-8"))
+    if cfg.get("story"):
+        H, TOP, BOT = 1920, 200, 230
+        F_TITLE, F_BODY, LH_TITLE, LH_BODY = font(80, "Bold"), font(56, "Regular"), 98, 78
     slides = cfg["slides"]
     for i, s in enumerate(slides):
         out = src / f"slide_{i + 1}.png"
