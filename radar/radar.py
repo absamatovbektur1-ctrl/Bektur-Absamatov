@@ -157,9 +157,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--rescore", action="store_true", help="пересчитать последний кэш без запросов к API")
     ap.add_argument("--dry-run", action="store_true", help="только показать, что будет скачано")
+    ap.add_argument("--only", help="сканировать один аккаунт (ник без @), ~4 запроса")
     args = ap.parse_args()
 
     cohort = json.loads(COHORT_PATH.read_text(encoding="utf-8"))["creators"]
+    if args.only:
+        cohort = [{"username": args.only.lstrip("@")}]
 
     if args.dry_run:
         print(f"{len(cohort)} авторов x ~4 запроса = ~{len(cohort) * 4} запросов к HikerAPI")
