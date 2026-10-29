@@ -1,0 +1,85 @@
+{
+  "texts": {
+    "a": "год назад:||«начну, когда буду готов»",
+    "b": "потом я просто||начал пробовать"
+  },
+  "frames": [
+    {
+      "img": "walk-road-back.jpg",
+      "x": 0.7,
+      "y": 0.6,
+      "dur": 1.6,
+      "text": "a"
+    },
+    {
+      "img": "cafe-brick-tea.jpg",
+      "x": 0.45,
+      "y": 0.5,
+      "dur": 1.2,
+      "text": "a"
+    },
+    {
+      "img": "kl-petronas-kalpak.jpg",
+      "x": 0.5,
+      "y": 0.5,
+      "dur": 0.9,
+      "text": "b"
+    },
+    {
+      "img": "kl-rooftop-petronas.jpg",
+      "x": 0.45,
+      "y": 0.5,
+      "dur": 0.6,
+      "text": "b"
+    },
+    {
+      "img": "ski-mountains-valley.jpg",
+      "x": 0.6,
+      "y": 0.45,
+      "dur": 0.6,
+      "text": "b"
+    },
+    {
+      "img": "aquarium-camera.jpg",
+      "x": 0.6,
+      "y": 0.5,
+      "dur": 0.6,
+      "text": "b"
+    },
+    {
+      "img": "mountains-viewpoint-red-vest.jpg",
+      "x": 0.3,
+      "y": 0.5,
+      "dur": 0.6,
+      "text": "b"
+    },
+    {
+      "img": "friends-four-street.jpg",
+      "x": 0.55,
+      "y": 0.5,
+      "dur": 0.6,
+      "text": "b"
+    },
+    {
+      "img": "farm-sheep.jpg",
+      "x": 0.5,
+      "y": 0.5,
+      "dur": 0.6,
+      "text": "b"
+    },
+    {
+      "img": "friend-bar-two.jpg",
+      "x": 0.5,
+      "y": 0.5,
+      "dur": 0.6,
+      "text": "b"
+    },
+    {
+      "img": "hike-lake-arms-open.jpg",
+      "x": 0.5,
+      "y": 0.5,
+      "dur": 2.0,
+      "text": "b"
+    }
+  ]
+}

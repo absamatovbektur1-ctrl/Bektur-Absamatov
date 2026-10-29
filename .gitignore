@@ -11,3 +11,6 @@ carousels/assets/headshot.jpg
 carousels/workspace/*/reference/
 carousels/workspace/*/*.png
 carousels/workspace/*/post_*.png
+reels/*/frames/
+reels/*/*.mp4
+reels/*/list.txt
