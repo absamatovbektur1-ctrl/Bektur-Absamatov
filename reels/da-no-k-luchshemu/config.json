@@ -1,0 +1,12 @@
+{
+  "labels": ["Да", "Но"],
+  "pairs": [
+    {"top": {"img": "walk-road-back.jpg", "text": "Да, сорвались переговоры", "x": 0.7, "y": 0.75},
+     "bottom": {"img": "kl-rooftop-petronas.jpg", "text": "Значит, это была не твоя сделка", "y": 0.5}},
+    {"top": {"img": "cafe-brick-tea.jpg", "text": "Да, кто-то говорит о тебе за спиной", "y": 0.45},
+     "bottom": {"img": "friends-four-street.jpg", "text": "Рядом те, кто знает тебя настоящего", "x": 0.5}},
+    {"top": {"img": "home-white-robe.jpg", "text": "Да, ты не знаешь, чем всё закончится", "y": 0.5},
+     "bottom": {"img": "mountains-viewpoint-red-vest.jpg", "text": "Всевышний знает", "y": 0.55}}
+  ],
+  "final": {"img": "hike-lake-arms-open.jpg", "text": "Всё, что происходит, — к лучшему", "y": 0.5}
+}
