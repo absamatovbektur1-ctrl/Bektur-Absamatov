@@ -89,7 +89,7 @@ def checklist(ws, who, start, days, checks, numbers, notes):
            + [8] + [30] * len(notes))
     for i, (_, tip) in enumerate(checks + numbers):
         if tip:
-            ws.cell(hr, 4 + i).comment = Comment(tip, "Бектур")
+            ws.cell(hr, 4 + i).comment = Comment(tip, "Команда")
     c1, c2 = 4, 3 + len(checks)
     n1 = c2 + 1
     pc = n1 + len(numbers)
@@ -229,7 +229,7 @@ def goals(ws, names):
     ws["F5"] = "В процессе"
     for c in "CDEF":
         ws[f"{c}5"].font = f(italic=True, color="7F7F7F")
-    ws["D5"].comment = Comment("Пример — замени на свою цель.", "Бектур")
+    ws["D5"].comment = Comment("Пример — замени на свою цель.", "Команда")
 
 
 def materials(ws, rows, names):
@@ -319,14 +319,14 @@ BOOKS_COMMON = [
 
 
 def assignments(ws, names, start):
-    cols = ["Дата", "Кому", "Задание", "Ссылка / книга", "Срок",
-            "Заметки (главные мысли)", "Что применит", "Сдал?", "Отзыв Бектура", "Оценка 1–5"]
-    title(ws, "Задания от Бектура", "Бектур заполняет A–E и I–J, исполнитель — F–H "
-          "и отправляет скрин заметок.", len(cols))
-    header(ws, 4, cols, color=DARK, widths=[11, 11, 32, 26, 11, 44, 30, 8, 34, 9])
+    cols = ["Дата", "Кто предложил", "Кому", "Задание", "Ссылка / книга", "Срок",
+            "Заметки (главные мысли)", "Что применит", "Сдал?", "Отзыв команды", "Оценка 1–5"]
+    title(ws, "Общие задания", "Задание может предложить любой. Исполнитель заполняет G–I "
+          "и кидает скрин заметок в общий чат, остальные пишут отзыв и оценку.", len(cols))
+    header(ws, 4, cols, color=DARK, widths=[11, 12, 11, 32, 26, 11, 44, 30, 8, 34, 9])
     plan = [
-        (date(2026, 10, 30), names[2], "Посмотреть подкаст и выписать заметки по шаблону",
-         "ссылку скинет Бектур", date(2026, 10, 30)),
+        (date(2026, 10, 30), names[0], names[2], "Посмотреть подкаст и выписать заметки по шаблону",
+         "ссылка в общем чате", date(2026, 10, 30)),
         (start, "Все", "«Атомные привычки» — гл. 1–2, 3 главные мысли", "Джеймс Клир",
          start + timedelta(days=2)),
         (start + timedelta(days=2), "Все", "Выучить суру Аль-Аср и её смысл, рассказать "
@@ -343,6 +343,8 @@ def assignments(ws, names, start):
          "камера телефона", start + timedelta(days=13)),
     ]
     for i, row in enumerate(plan):
+        if len(row) == 5:
+            row = (row[0], "Команда") + row[1:]
         for j, v in enumerate(row):
             c = ws.cell(5 + i, 1 + j, v)
             if isinstance(v, date):
@@ -358,17 +360,21 @@ def assignments(ws, names, start):
                         allow_blank=True)
     for v in (who, dv, sc):
         ws.add_data_validation(v)
-    who.add(f"B5:B{last}")
-    dv.add(f"H5:H{last}")
-    sc.add(f"J5:J{last}")
-    ws.conditional_formatting.add(f"H5:H{last}", CellIsRule(operator="equal",
+    who.add(f"C5:C{last}")
+    by = DataValidation(type="list", formula1='"' + ",".join(names + ["Команда"]) + '"',
+                        allow_blank=True)
+    ws.add_data_validation(by)
+    by.add(f"B5:B{last}")
+    dv.add(f"I5:I{last}")
+    sc.add(f"K5:K{last}")
+    ws.conditional_formatting.add(f"I5:I{last}", CellIsRule(operator="equal",
                                   formula=[f'"{YES}"'], fill=fill("C6EFCE")))
-    ws.freeze_panes = "D5"
+    ws.freeze_panes = "E5"
     n = last + 2
     ws.cell(n, 1, "Сдано заданий:").font = f(True)
-    ws.cell(n, 3, f'=COUNTIF(H5:H{last},"{YES}")&" из "&COUNTA(C5:C{last})')
+    ws.cell(n, 3, f'=COUNTIF(I5:I{last},"{YES}")&" из "&COUNTA(D5:D{last})')
     ws.cell(n + 1, 1, "Средняя оценка:").font = f(True)
-    ws.cell(n + 1, 3, f'=IFERROR(ROUND(AVERAGE(J5:J{last}),1),"—")')
+    ws.cell(n + 1, 3, f'=IFERROR(ROUND(AVERAGE(K5:K{last}),1),"—")')
 
 
 def projects(ws, names):
@@ -399,7 +405,7 @@ def projects(ws, names):
     for j, v in enumerate(ex, 2):
         if v is not None:
             ws.cell(5, j, v).font = f(italic=True, color="7F7F7F")
-    ws.cell(5, 2).comment = Comment("Пример — замени на свой проект.", "Бектур")
+    ws.cell(5, 2).comment = Comment("Пример — замени на свой проект.", "Команда")
     ws.freeze_panes = "C5"
 
 
@@ -412,7 +418,7 @@ def build_team():
               ("Коран 10–15 мин", None), ("Зикр", None), ("Без харама", None),
               ("Учёба / уроки без телефона", "Фокус-блоки, телефон в другой комнате"),
               ("Развитие 30–60 мин", "Книга / психология / финансы / новости"),
-              ("Задание от Бектура", "Подкаст / видео / книга — заметки отправлены"),
+              ("Общее задание", "Подкаст / видео / книга — заметки скинул в общий чат"),
               ("Шахматы", "1 партия или 5 задач на Lichess / Chess.com"),
               ("Английский 20 мин", "Duolingo / Anki / видео с субтитрами"),
               ("ИИ-инструменты", "Использовал Claude / ChatGPT для учёбы или проекта"),
@@ -435,7 +441,8 @@ def build_team():
               "выполнена (2 ч и 20 стр.).",
               "3. Вечером 3 строки самоконтроля: что сделал хорошо, где был слаб, что исправлю.",
               "ЗАДАНИЯ",
-              "Лист «Задания»: что задал Бектур. Сделал → заметки по шаблону и скрин Бектуру. "
+              "Лист «Задания»: задание может предложить любой из нас. Сделал → заметки по шаблону и "
+              "скрин в общий чат, остальные дают отзыв. Все равны — нет главного и подчинённых. "
               "Шаблон: 1) Название и кто говорит  2) 3–5 главных мыслей своими словами  "
               "3) Цитата, которая зацепила  4) Что применю завтра  5) Вопрос / с чем не согласен",
               "КАЖДОЕ ВОСКРЕСЕНЬЕ",
@@ -479,7 +486,7 @@ def build_team():
     ws.cell(r, lay["pc"] + 1, "Все 5 намазов вовремя, 3 часа учёбы")
     ws.cell(r, lay["pc"] + 2, "Мало воды")
     ws.cell(r, lay["pc"] + 3, "Бутылку воды на стол с утра")
-    ws.cell(r, 1).comment = Comment("Строка-пример: перезапиши своими данными.", "Бектур")
+    ws.cell(r, 1).comment = Comment("Строка-пример: перезапиши своими данными.", "Команда")
     path = OUT / "Трекер_команды.xlsx"
     wb.save(path)
     return path
