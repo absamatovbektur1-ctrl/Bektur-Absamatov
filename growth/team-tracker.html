@@ -1,0 +1,566 @@
+<title>Команда роста</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: phone-first app — sticky header (who + date), tab strip, one working view at a time; max 760px column. */
+:root {
+  --bg: #F1F4F1;
+  --surface: #FFFFFF;
+  --sunk: #E6ECE8;
+  --line: #D3DCD6;
+  --ink: #13211C;
+  --muted: #5D6E66;
+  --accent: #0E6A58;
+  --accent-ink: #FFFFFF;
+  --gold: #A87B1F;
+  --good: #1E8A4C;
+  --mid: #C08A12;
+  --bad: #C2453A;
+  --display: "Unbounded", "Onest", system-ui, sans-serif;
+  --body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1412; --surface: #15201C; --sunk: #1C2925; --line: #2A3933; --ink: #E3EBE6;
+    --muted: #93A59C; --accent: #3DB497; --accent-ink: #06231C; --gold: #D8AD52;
+    --good: #4CC27D; --mid: #E2AE3A; --bad: #EE7A6E; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1412; --surface: #15201C; --sunk: #1C2925; --line: #2A3933; --ink: #E3EBE6;
+  --muted: #93A59C; --accent: #3DB497; --accent-ink: #06231C; --gold: #D8AD52;
+  --good: #4CC27D; --mid: #E2AE3A; --bad: #EE7A6E; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+header.top .wrap { padding-block: 12px 0; display: grid; gap: 10px; }
+.brand { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.brand h1 { font-family: var(--display); font-size: 18px; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+.brand .wk { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.who { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.who::-webkit-scrollbar { display: none; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; white-space: nowrap; font-weight: 500; font-size: 14px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip.ghost { background: transparent; color: var(--muted); }
+nav.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+nav.tabs::-webkit-scrollbar { display: none; }
+nav.tabs button { background: none; border: 0; padding: 10px 12px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+main .wrap { padding-block: 18px 48px; display: grid; gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 600; margin: 0; }
+h2 { font-family: var(--display); font-size: 16px; margin: 0; text-wrap: balance; }
+.muted { color: var(--muted); }
+.notice { border: 1px dashed var(--line); border-radius: var(--r); padding: 12px 14px; color: var(--muted); font-size: 14px; }
+.notice strong { color: var(--ink); }
+
+/* Today */
+.daybar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.daybar .nav { display: flex; align-items: center; gap: 6px; }
+.iconbtn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 18px; line-height: 1; }
+.daylabel { font-weight: 600; min-width: 0; }
+.score { display: flex; align-items: center; gap: 14px; }
+.ring { --p: 0; width: 72px; height: 72px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  background: conic-gradient(var(--ring, var(--accent)) calc(var(--p) * 1%), var(--sunk) 0); }
+.ring span { width: 56px; height: 56px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 16px; }
+.score p { margin: 0; }
+.group { display: grid; gap: 8px; }
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.item { display: flex; align-items: center; gap: 10px; text-align: left; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-weight: 500; min-height: 48px; }
+.item .box { width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--line); flex: none; display: grid; place-items: center; font-size: 14px; color: var(--accent-ink); }
+.item[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+.item[aria-pressed="true"] .box { background: var(--accent); border-color: var(--accent); }
+.item[aria-pressed="true"] .box::after { content: "✓"; font-weight: 700; }
+.item small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; line-height: 1.25; }
+.steppers { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stepper { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; background: var(--bg); }
+.stepper .row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.stepper .val { font-family: var(--mono); font-weight: 700; font-size: 22px; }
+.stepper.ok { border-color: var(--good); }
+.stepper .goal { font-size: 12px; color: var(--muted); }
+label.f { display: grid; gap: 4px; font-size: 13px; color: var(--muted); font-weight: 500; }
+textarea, input[type="text"], input[type="date"], select { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); padding: 9px 11px; color: var(--ink); }
+textarea { resize: vertical; min-height: 44px; }
+.saved { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+/* Week */
+.tablewrap { overflow-x: auto; margin: 0 -4px; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 6px; text-align: center; font-size: 13px; white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+td.name, th.name { text-align: left; font-weight: 600; font-size: 14px; text-transform: none; letter-spacing: 0; }
+td.cell span { display: inline-block; min-width: 38px; padding: 4px 0; border-radius: 6px; font-family: var(--mono); font-size: 12px; }
+.lvl-0 { color: var(--muted); background: var(--sunk); }
+.lvl-1 { background: color-mix(in srgb, var(--bad) 22%, transparent); }
+.lvl-2 { background: color-mix(in srgb, var(--mid) 26%, transparent); }
+.lvl-3 { background: color-mix(in srgb, var(--good) 28%, transparent); }
+td.avg { font-family: var(--mono); font-weight: 700; }
+tr.lead td.name::after { content: " ★"; color: var(--gold); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+.stat b { display: block; font-family: var(--mono); font-size: 20px; }
+.stat span { font-size: 12px; color: var(--muted); }
+
+/* Call */
+.topic { display: grid; gap: 4px; }
+.topic .big { font-family: var(--display); font-size: 22px; color: var(--accent); }
+ol.list { margin: 0; padding-left: 22px; display: grid; gap: 4px; }
+ol.list li.now { font-weight: 700; color: var(--accent); }
+ol.list li.now::marker { color: var(--accent); }
+.order { display: grid; gap: 6px; counter-reset: s; margin: 0; padding: 0; list-style: none; }
+.order li { counter-increment: s; display: flex; gap: 10px; align-items: baseline; }
+.order li::before { content: counter(s); font-family: var(--mono); font-weight: 700; color: var(--accent); }
+
+/* Tasks & goals */
+.task { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; background: var(--bg); min-width: 0; }
+.task .head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.task .title { font-weight: 600; overflow-wrap: anywhere; }
+.task .meta { font-size: 12px; color: var(--muted); }
+.task .done { display: flex; flex-wrap: wrap; gap: 6px; }
+.mini { font-size: 12px; padding: 4px 10px; }
+.mini[aria-pressed="true"] { background: var(--good); border-color: var(--good); color: #fff; }
+.linkbtn { background: none; border: 0; color: var(--muted); font-size: 12px; text-decoration: underline; padding: 2px; }
+.danger { color: var(--bad); }
+.form { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+.form .full { grid-column: 1 / -1; }
+.btn { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 600; }
+.btn:disabled { opacity: .5; cursor: default; }
+.status { font-size: 12px; border-radius: 999px; padding: 3px 10px; border: 1px solid var(--line); background: var(--surface); white-space: nowrap; }
+.status[data-s="В процессе"] { border-color: var(--mid); }
+.status[data-s="Готово ✅"] { border-color: var(--good); background: color-mix(in srgb, var(--good) 15%, var(--surface)); }
+.books { display: grid; gap: 6px; }
+.book { display: grid; grid-template-columns: 110px 1fr; gap: 10px; font-size: 14px; padding: 6px 0; border-top: 1px solid var(--line); }
+.book .cat { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; padding-top: 2px; }
+.names { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+@media (max-width: 440px) {
+  .form { grid-template-columns: 1fr; }
+  .book { grid-template-columns: 1fr; gap: 2px; }
+  .stats { grid-template-columns: 1fr 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><h1>Команда роста</h1><span class="wk" id="wkLabel"></span></div>
+    <div class="who" id="who" role="group" aria-label="Кто отмечает"></div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-tab="today" aria-selected="true">Сегодня</button>
+      <button role="tab" data-tab="week" aria-selected="false">Неделя</button>
+      <button role="tab" data-tab="call" aria-selected="false">Созвон</button>
+      <button role="tab" data-tab="tasks" aria-selected="false">Задания</button>
+      <button role="tab" data-tab="goals" aria-selected="false">Цели и проекты</button>
+    </nav>
+  </div>
+</header>
+<main><div class="wrap" id="view"></div></main>
+
+<script>
+(() => {
+"use strict";
+const START = "2026-11-01"; // неделя 1, воскресенье — день созвона
+const DEFAULT_NAMES = ["Бектур", "Юзер 1", "Юзер 2", "Юзер 3", "Юзер 4"];
+const MEMBERS = ["m0", "m1", "m2", "m3", "m4"];
+const GROUPS = [
+  ["Религия", [["fajr","Фаджр"],["zuhr","Зухр"],["asr","Аср"],["maghrib","Магриб"],["isha","Иша"],["quran","Коран 10–15 мин"],["zikr","Зикр"]]],
+  ["Учёба", [["study","Учёба без телефона","фокус-блоки"],["task","Общее задание","заметки в чат"]]],
+  ["Навыки", [["chess","Шахматы","партия или 5 задач"],["english","Английский 20 мин"],["ai","ИИ-инструменты","для учёбы / проекта"],["project","Проект / подкаст"],["people","Навык с людьми","челлендж недели"]]],
+  ["Тело", [["sport","Спорт / активность"],["water","Вода 2 л"],["food","Нормальное питание"],["sleep","Сон 6–8 ч"]]],
+  ["Жизнь", [["parents","Родители","позвонил / помог"],["notime","Без пустой траты времени","без бесконечных рилсов"]]],
+];
+const ITEMS = GROUPS.flatMap(g => g[1].map(i => i[0]));
+const NAMAZ = ["fajr","zuhr","asr","maghrib","isha"];
+const TOPICS = ["Намаз","Ният","Сабр","Таваккуль","Тауба","Ахляк","Ихсан"];
+const CHALLENGES = ["Запоминать имена","Слушать, не перебивая","Каждый день искренний комплимент","Задавать открытые вопросы","Уважительно говорить «нет»","Выступить перед людьми или на камеру","Договориться о чём-то (переговоры)","Спокойно решить спор","Познакомиться с сильным человеком"];
+const STATUSES = ["Не начато","В процессе","Готово ✅","Провал"];
+const BOOKS = [
+  ["Религия","Рисале-и Нур: «Сөзлер», «Лемалар» — Саид Нурси"],
+  ["Религия","«Изумрудные холмы сердца», «Вечный свет» — Фетхуллах Гюлен"],
+  ["Мышление","«Атомные привычки» — Джеймс Клир"],
+  ["Мышление","«Человек в поисках смысла» — Виктор Франкл"],
+  ["Учёба","«Глубокая работа» — Кэл Ньюпорт"],
+  ["Финансы","«Самый богатый человек в Вавилоне» — Джордж Клейсон"],
+  ["Люди","«Как завоёвывать друзей…» — Дейл Карнеги"],
+  ["Люди","«48 законов власти» — Роберт Грин (читать через призму ахляка)"],
+  ["Люди","«Психология влияния» — Роберт Чалдини"],
+  ["Люди","«Никаких компромиссов» — Крис Восс"],
+  ["Люди","«Харизма» — Оливия Фокс Кабейн"],
+  ["Люди","«Эмоциональный интеллект» — Дэниел Гоулман"],
+  ["Навык","Шахматы — lichess.org · Английский — Duolingo / Anki · ИИ — Claude"],
+  ["Подкаст","Huberman Lab · The Diary of a CEO"],
+];
+const WD = ["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];
+const MONTHS = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+
+const S = {
+  tab: "today", me: load("me", "m0"), date: iso(new Date()), weekOffset: 0,
+  names: DEFAULT_NAMES.slice(), checks: {}, tasks: [], goals: [], calls: {},
+  db: null, canWrite: null, ready: false, editingNames: false, confirmDel: null,
+};
+
+function load(k, d) { try { return localStorage.getItem("team." + k) || d; } catch { return d; } }
+function save(k, v) { try { localStorage.setItem("team." + k, v); } catch {} }
+function iso(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function parse(s) { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); }
+function addDays(s, n) { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); }
+function weekOf(s) { return Math.floor(Math.round((parse(s) - parse(START)) / 864e5) / 7) + 1; }
+function weekStart(n) { return addDays(START, (n - 1) * 7); }
+function topicFor(n) { return TOPICS[(((n - 1) % 7) + 7) % 7]; }
+function chIdx(n) { return (((n - 1) % 9) + 9) % 9; }
+function nice(s) { const d = parse(s); return WD[d.getDay()] + ", " + d.getDate() + " " + MONTHS[d.getMonth()]; }
+function name(m) { return S.names[MEMBERS.indexOf(m)] || m; }
+function esc(t) { return String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function rec(m, d) { return S.checks[m + "_" + d]; }
+function pct(r) { return r && r.done ? Math.round(r.done.filter(k => ITEMS.includes(k)).length / ITEMS.length * 100) : null; }
+function lvl(p) { return p == null ? 0 : p < 40 ? 1 : p < 70 ? 2 : 3; }
+function ringColor(p) { return p == null ? "var(--line)" : p < 40 ? "var(--bad)" : p < 70 ? "var(--mid)" : "var(--good)"; }
+
+// ---- writes: one at a time per doc, coalesced ----
+const pending = new Map(), timers = new Map(), inflight = new Set();
+function queueWrite(path, data, delay = 500) {
+  pending.set(path, data);
+  clearTimeout(timers.get(path));
+  timers.set(path, setTimeout(() => flush(path), delay));
+}
+async function flush(path) {
+  if (inflight.has(path)) { timers.set(path, setTimeout(() => flush(path), 300)); return; }
+  const data = pending.get(path); if (!data || !S.db) return;
+  pending.delete(path); inflight.add(path); setSaved("Сохраняю…");
+  try { await S.db.doc(path).set(data); setSaved("Сохранено"); }
+  catch (e) {
+    if (e && e.code === "invalid_argument") { S.canWrite = false; render(); }
+    else setSaved("Не сохранилось — проверь интернет");
+  } finally { inflight.delete(path); }
+}
+function setSaved(t) { const el = document.getElementById("saved"); if (el) el.textContent = t; }
+
+// ---- render ----
+const view = document.getElementById("view");
+function render() {
+  const wk = weekOf(iso(new Date()));
+  document.getElementById("wkLabel").textContent = wk >= 1 ? "неделя " + wk : "старт 1 ноября";
+  renderWho();
+  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === S.tab)));
+  const focus = document.activeElement && document.activeElement.id;
+  view.innerHTML = banner() + ({ today: vToday, week: vWeek, call: vCall, tasks: vTasks, goals: vGoals }[S.tab])();
+  if (focus) { const el = document.getElementById(focus); if (el && el.tagName !== "BUTTON") el.focus(); }
+}
+function renderWho() {
+  document.getElementById("who").innerHTML = MEMBERS.map(m =>
+    `<button class="chip" data-me="${m}" aria-pressed="${m === S.me}">${esc(name(m))}</button>`).join("") +
+    `<button class="chip ghost" data-act="names" aria-label="Изменить имена">✎ имена</button>`;
+}
+function banner() {
+  if (!S.ready) return `<div class="notice">Загружаю отметки команды…</div>`;
+  if (!S.db) return `<div class="notice"><strong>Отметки не сохраняются.</strong> Войди в свой аккаунт claude.ai и открой эту страницу по ссылке, которую прислал Бектур.</div>`;
+  if (S.canWrite === false) return `<div class="notice"><strong>Только просмотр.</strong> Чтобы ставить галочки, попроси Бектура дать тебе доступ «Участник» (Contributor) в меню «Поделиться».</div>`;
+  let h = "";
+  if (S.editingNames) h += `<section class="card"><p class="eyebrow">Имена команды</p><div class="names">${MEMBERS.map((m, i) =>
+    `<input type="text" id="nm-${m}" data-name="${i}" value="${esc(S.names[i])}" aria-label="Имя ${i + 1}">`).join("")}</div>
+    <div><button class="btn" data-act="names-done">Готово</button></div></section>`;
+  return h;
+}
+const ro = () => !S.db || S.canWrite === false;
+
+function vToday() {
+  const r = rec(S.me, S.date) || {};
+  const done = new Set(r.done || []);
+  const p = pct(r) ?? 0;
+  const wk = weekOf(S.date);
+  const isToday = S.date === iso(new Date());
+  const hours = r.hours || 0, pages = r.pages || 0;
+  return `
+  <section class="card">
+    <div class="daybar">
+      <div class="nav">
+        <button class="iconbtn" data-act="day" data-d="-1" aria-label="Предыдущий день">‹</button>
+        <button class="iconbtn" data-act="day" data-d="1" aria-label="Следующий день">›</button>
+        <span class="daylabel">${isToday ? "Сегодня · " : ""}${nice(S.date)}</span>
+      </div>
+      ${isToday ? "" : `<button class="chip mini" data-act="today">Сегодня</button>`}
+    </div>
+    <div class="score">
+      <div class="ring" style="--p:${p};--ring:${ringColor(p)}"><span>${p}%</span></div>
+      <div><p><b>${esc(name(S.me))}</b> · ${done.size} из ${ITEMS.length}</p>
+      <p class="muted">Челлендж недели: ${esc(CHALLENGES[chIdx(Math.max(wk, 1))])}</p></div>
+    </div>
+  </section>
+  ${GROUPS.map(([g, items]) => `
+  <section class="group"><p class="eyebrow">${g}</p><div class="items">
+    ${items.map(([k, l, hint]) => `<button class="item" data-item="${k}" aria-pressed="${done.has(k)}" ${ro() ? "disabled" : ""}>
+      <span class="box" aria-hidden="true"></span><span>${l}${hint ? `<small>${hint}</small>` : ""}</span></button>`).join("")}
+  </div></section>`).join("")}
+  <section class="group"><p class="eyebrow">Цифры дня</p><div class="steppers">
+    ${stepper("hours", "Часов учёбы", hours, 0.5, 2, "норма 2 ч")}
+    ${stepper("pages", "Страниц книги", pages, 5, 20, "норма 20 стр.")}
+  </div></section>
+  <section class="card">
+    <p class="eyebrow">Вечерний самоконтроль</p>
+    <label class="f">Что сделал хорошо<textarea id="n-good" data-note="good" rows="2" ${ro() ? "disabled" : ""}>${esc(r.good)}</textarea></label>
+    <label class="f">Где был слаб<textarea id="n-weak" data-note="weak" rows="2" ${ro() ? "disabled" : ""}>${esc(r.weak)}</textarea></label>
+    <label class="f">Что исправлю завтра<textarea id="n-fix" data-note="fix" rows="2" ${ro() ? "disabled" : ""}>${esc(r.fix)}</textarea></label>
+    <span class="saved" id="saved"></span>
+  </section>`;
+}
+function stepper(k, label, v, step, goal, hint) {
+  return `<div class="stepper ${v >= goal ? "ok" : ""}"><span class="goal">${label}</span>
+    <div class="row"><button class="iconbtn" data-step="${k}" data-v="${-step}" aria-label="Меньше" ${ro() ? "disabled" : ""}>−</button>
+    <span class="val">${v}</span>
+    <button class="iconbtn" data-step="${k}" data-v="${step}" aria-label="Больше" ${ro() ? "disabled" : ""}>+</button></div>
+    <span class="goal">${hint}</span></div>`;
+}
+function writeDay(m, d, patch) {
+  const id = m + "_" + d;
+  const cur = Object.assign({ m, date: d, week: weekOf(d), done: [], hours: 0, pages: 0, good: "", weak: "", fix: "" }, S.checks[id] || {}, patch);
+  cur.pct = pct(cur);
+  S.checks[id] = cur;
+  queueWrite("checks/" + id, cur);
+}
+
+function vWeek() {
+  const cur = weekOf(iso(new Date()));
+  const n = Math.max(cur, 1) + S.weekOffset;
+  const ws = weekStart(n);
+  const days = [...Array(7)].map((_, i) => addDays(ws, i));
+  const rows = MEMBERS.map(m => {
+    const ps = days.map(d => pct(rec(m, d)));
+    const filled = ps.filter(p => p != null);
+    const avg = filled.length ? Math.round(filled.reduce((a, b) => a + b, 0) / filled.length) : null;
+    let namaz = 0, hours = 0, pages = 0;
+    days.forEach(d => { const r = rec(m, d); if (r) { namaz += (r.done || []).filter(k => NAMAZ.includes(k)).length; hours += r.hours || 0; pages += r.pages || 0; } });
+    return { m, ps, avg, namaz, hours, pages };
+  }).sort((a, b) => (b.avg ?? -1) - (a.avg ?? -1));
+  const leadAvg = rows[0].avg;
+  const today = iso(new Date());
+  const marked = MEMBERS.filter(m => rec(m, today) && (rec(m, today).done || []).length).length;
+  const team = rows.filter(r => r.avg != null);
+  const teamAvg = team.length ? Math.round(team.reduce((a, r) => a + r.avg, 0) / team.length) : null;
+  return `
+  <section class="card">
+    <div class="daybar">
+      <div class="nav">
+        <button class="iconbtn" data-act="wk" data-d="-1" aria-label="Прошлая неделя">‹</button>
+        <button class="iconbtn" data-act="wk" data-d="1" aria-label="Следующая неделя">›</button>
+        <span class="daylabel">Неделя ${n} · ${nice(ws)} – ${nice(days[6])}</span>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>${teamAvg == null ? "—" : teamAvg + "%"}</b><span>средний % команды</span></div>
+      <div class="stat"><b>${marked}/5</b><span>отметились сегодня</span></div>
+      <div class="stat"><b>${leadAvg == null ? "—" : esc(name(rows[0].m))}</b><span>лидер недели</span></div>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th class="name">Кто</th>${days.map(d => `<th>${WD[parse(d).getDay()]}</th>`).join("")}<th>Ø</th><th>Намаз</th><th>Часы</th><th>Стр.</th></tr></thead>
+      <tbody>${rows.map(r => `<tr class="${r.avg != null && r.avg === leadAvg ? "lead" : ""}"><td class="name">${esc(name(r.m))}</td>
+        ${r.ps.map(p => `<td class="cell"><span class="lvl-${lvl(p)}">${p == null ? "·" : p}</span></td>`).join("")}
+        <td class="avg">${r.avg == null ? "—" : r.avg + "%"}</td><td>${r.namaz}/35</td><td>${r.hours}</td><td>${r.pages}</td></tr>`).join("")}</tbody>
+    </table></div>
+    <p class="muted" style="margin:0;font-size:13px">У кого Ø выше всех — выбирает тему или книгу на следующую неделю.</p>
+  </section>`;
+}
+
+function vCall() {
+  const cur = Math.max(weekOf(iso(new Date())), 1);
+  const n = cur + S.weekOffset;
+  const c = S.calls["w" + n] || {};
+  const prev = n > 1 ? CHALLENGES[chIdx(n - 1)] : null;
+  return `
+  <section class="card">
+    <div class="daybar"><div class="nav">
+      <button class="iconbtn" data-act="wk" data-d="-1" aria-label="Прошлая неделя">‹</button>
+      <button class="iconbtn" data-act="wk" data-d="1" aria-label="Следующая неделя">›</button>
+      <span class="daylabel">Созвон ${n} · ${nice(weekStart(n))}, 18:00</span></div></div>
+    <div class="topic"><p class="eyebrow">Тема по исламу</p><span class="big">${topicFor(n)}</span></div>
+    <div class="topic"><p class="eyebrow">Челлендж недели</p><b>${esc(CHALLENGES[chIdx(n)])}</b>
+      ${prev ? `<span class="muted">Прошлый: ${esc(prev)} — кто как справился?</span>` : ""}</div>
+  </section>
+  <section class="card"><p class="eyebrow">Порядок, 45–60 мин</p>
+    <ol class="order"><li>Отчёт каждого: учёба, намаз, спорт, развитие, % на вкладке «Неделя»</li>
+    <li>Ошибки: где ленился, где нарушил</li><li>Тема по исламу: обсуждение и как применить</li>
+    <li>План на неделю и новый челлендж</li></ol></section>
+  <section class="card"><p class="eyebrow">Итоги созвона</p>
+    <label class="f">Ошибки недели<textarea id="c-mist" data-call="mistakes" rows="3" ${ro() ? "disabled" : ""}>${esc(c.mistakes)}</textarea></label>
+    <label class="f">Вывод по теме: как применить<textarea id="c-take" data-call="takeaway" rows="3" ${ro() ? "disabled" : ""}>${esc(c.takeaway)}</textarea></label>
+    <label class="f">План на неделю<textarea id="c-plan" data-call="plan" rows="3" ${ro() ? "disabled" : ""}>${esc(c.plan)}</textarea></label>
+    <span class="saved" id="saved"></span></section>
+  <section class="card"><p class="eyebrow">Все челленджи по кругу</p>
+    <ol class="list">${CHALLENGES.map((t, i) => `<li class="${i === chIdx(n) ? "now" : ""}">${esc(t)}</li>`).join("")}</ol>
+    <p class="eyebrow">Темы по кругу</p><p style="margin:0">${TOPICS.map(t => t === topicFor(n) ? `<b style="color:var(--accent)">${t}</b>` : t).join(" → ")}</p></section>`;
+}
+
+function memberOpts(sel, extra) {
+  return (extra || []).concat(MEMBERS).map(m => `<option value="${m}" ${m === sel ? "selected" : ""}>${esc(m === "all" ? "Все" : m === "team" ? "Команда" : name(m))}</option>`).join("");
+}
+function vTasks() {
+  const tasks = S.tasks.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  return `
+  <section class="card"><p class="eyebrow">Новое задание</p>
+    <div class="form">
+      <label class="f full">Задание<input type="text" id="t-title" placeholder="Например: подкаст про дисциплину — 5 главных мыслей"></label>
+      <label class="f">Кто предложил<select id="t-by">${memberOpts(S.me, ["team"])}</select></label>
+      <label class="f">Кому<select id="t-to">${memberOpts("all", ["all"])}</select></label>
+      <label class="f">Ссылка / книга<input type="text" id="t-link"></label>
+      <label class="f">Срок<input type="date" id="t-due" value="${addDays(iso(new Date()), 2)}"></label>
+      <div class="full"><button class="btn" data-act="add-task" ${ro() ? "disabled" : ""}>Добавить задание</button></div>
+    </div>
+    <p class="muted" style="margin:0;font-size:13px">Сделал — кидаешь заметки в общий чат по шаблону: название · 3–5 мыслей своими словами · цитата · что применю завтра · вопрос.</p>
+  </section>
+  ${tasks.length ? tasks.map(t => {
+    const who = t.to === "all" ? MEMBERS : [t.to];
+    const doneBy = t.doneBy || {};
+    return `<article class="task">
+      <div class="head"><div><div class="title">${esc(t.title)}</div>
+        <div class="meta">${esc(t.by === "team" ? "Команда" : name(t.by))} → ${esc(t.to === "all" ? "все" : name(t.to))}${t.due ? " · до " + nice(t.due) : ""}${t.link ? " · " + esc(t.link) : ""}</div></div>
+        ${S.confirmDel === t.id ? `<span><button class="linkbtn danger" data-del="${t.id}">Удалить?</button><button class="linkbtn" data-act="nodel">Нет</button></span>`
+          : `<button class="linkbtn" data-askdel="${t.id}" ${ro() ? "disabled" : ""}>убрать</button>`}</div>
+      <div class="done">${who.map(m => `<button class="chip mini" data-tdone="${t.id}" data-m="${m}" aria-pressed="${!!doneBy[m]}" ${ro() ? "disabled" : ""}>${doneBy[m] ? "✓ " : ""}${esc(name(m))}</button>`).join("")}</div>
+    </article>`; }).join("") : `<div class="notice">Заданий пока нет. Добавь первое — его увидят все.</div>`}`;
+}
+
+function vGoals() {
+  const mine = S.goals.filter(g => g.m === S.me);
+  const kinds = ["Месяц", "Год", "Проект"];
+  return `
+  <section class="card"><p class="eyebrow">Новая цель для ${esc(name(S.me))}</p>
+    <div class="form">
+      <label class="f full">Цель (что + сколько + к какому числу)<input type="text" id="g-text" placeholder="Например: 600 страниц за ноябрь"></label>
+      <label class="f">Тип<select id="g-kind">${kinds.map(k => `<option>${k}</option>`).join("")}</select></label>
+      <label class="f">Первый шаг<input type="text" id="g-step" placeholder="20 стр. сегодня после Иша"></label>
+      <div class="full"><button class="btn" data-act="add-goal" ${ro() ? "disabled" : ""}>Добавить</button></div>
+    </div></section>
+  ${MEMBERS.map(m => {
+    const gs = S.goals.filter(g => g.m === m);
+    if (!gs.length && m !== S.me) return "";
+    return `<section class="card"><h2>${esc(name(m))}</h2>
+      ${gs.length ? kinds.map(k => { const list = gs.filter(g => g.kind === k); return list.length ? `<p class="eyebrow">${k}</p>` + list.map(g => `
+        <article class="task"><div class="head"><div><div class="title">${esc(g.text)}</div>${g.step ? `<div class="meta">Шаг: ${esc(g.step)}</div>` : ""}</div>
+        <button class="status" data-gstat="${g.id}" data-s="${esc(g.status)}" ${ro() ? "disabled" : ""}>${esc(g.status)}</button></div>
+        ${S.confirmDel === g.id ? `<span><button class="linkbtn danger" data-gdel="${g.id}">Удалить?</button><button class="linkbtn" data-act="nodel">Нет</button></span>`
+          : `<span><button class="linkbtn" data-askdel="${g.id}" ${ro() ? "disabled" : ""}>убрать</button></span>`}</article>`).join("") : ""; }).join("")
+        : `<p class="muted" style="margin:0">Пока пусто. Начни с 3 целей на месяц и одного проекта.</p>`}</section>`; }).join("")}
+  <section class="card"><p class="eyebrow">Что читать и качать</p><div class="books">
+    ${BOOKS.map(([c, t]) => `<div class="book"><span class="cat">${c}</span><span>${esc(t)}</span></div>`).join("")}</div></section>`;
+}
+
+// ---- events ----
+document.getElementById("tabs").addEventListener("click", e => {
+  const b = e.target.closest("[data-tab]"); if (!b) return;
+  S.tab = b.dataset.tab; S.weekOffset = 0; S.confirmDel = null; render(); window.scrollTo(0, 0);
+});
+document.getElementById("who").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.me) { S.me = b.dataset.me; save("me", S.me); }
+  if (b.dataset.act === "names") S.editingNames = !S.editingNames;
+  render();
+});
+view.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b || b.disabled) return;
+  const d = b.dataset;
+  if (d.item) {
+    const r = rec(S.me, S.date) || {}; const set = new Set(r.done || []);
+    set.has(d.item) ? set.delete(d.item) : set.add(d.item);
+    writeDay(S.me, S.date, { done: ITEMS.filter(k => set.has(k)) }); render(); return;
+  }
+  if (d.step) {
+    const r = rec(S.me, S.date) || {};
+    const v = Math.max(0, Math.round(((r[d.step] || 0) + Number(d.v)) * 10) / 10);
+    writeDay(S.me, S.date, { [d.step]: v }); render(); return;
+  }
+  if (d.act === "day") { S.date = addDays(S.date, Number(d.d)); render(); return; }
+  if (d.act === "today") { S.date = iso(new Date()); render(); return; }
+  if (d.act === "wk") { S.weekOffset += Number(d.d); render(); return; }
+  if (d.act === "names-done") { S.editingNames = false; render(); return; }
+  if (d.act === "nodel") { S.confirmDel = null; render(); return; }
+  if (d.askdel) { S.confirmDel = d.askdel; render(); return; }
+  if (d.act === "add-task") {
+    const title = document.getElementById("t-title").value.trim(); if (!title || !S.db) return;
+    const t = { title, by: document.getElementById("t-by").value, to: document.getElementById("t-to").value,
+      link: document.getElementById("t-link").value.trim(), due: document.getElementById("t-due").value, date: iso(new Date()), doneBy: {} };
+    b.disabled = true;
+    try { await S.db.collection("tasks").add(t); } catch (err) { if (err && err.code === "invalid_argument") S.canWrite = false; render(); }
+    return;
+  }
+  if (d.tdone) {
+    const t = S.tasks.find(x => x.id === d.tdone); if (!t) return;
+    const doneBy = Object.assign({}, t.doneBy || {}); doneBy[d.m] = !doneBy[d.m];
+    t.doneBy = doneBy; render();
+    const { id, ...body } = t; queueWrite("tasks/" + id, body, 0); return;
+  }
+  if (d.del) { S.confirmDel = null; S.tasks = S.tasks.filter(x => x.id !== d.del); render(); try { await S.db.doc("tasks/" + d.del).delete(); } catch {} return; }
+  if (d.act === "add-goal") {
+    const text = document.getElementById("g-text").value.trim(); if (!text || !S.db) return;
+    b.disabled = true;
+    try { await S.db.collection("goals").add({ m: S.me, text, kind: document.getElementById("g-kind").value,
+      step: document.getElementById("g-step").value.trim(), status: "Не начато", date: iso(new Date()) }); }
+    catch (err) { if (err && err.code === "invalid_argument") S.canWrite = false; render(); }
+    return;
+  }
+  if (d.gstat) {
+    const g = S.goals.find(x => x.id === d.gstat); if (!g) return;
+    g.status = STATUSES[(STATUSES.indexOf(g.status) + 1) % STATUSES.length]; render();
+    const { id, ...body } = g; queueWrite("goals/" + id, body, 0); return;
+  }
+  if (d.gdel) { S.confirmDel = null; S.goals = S.goals.filter(x => x.id !== d.gdel); render(); try { await S.db.doc("goals/" + d.gdel).delete(); } catch {} return; }
+});
+view.addEventListener("input", e => {
+  const t = e.target, d = t.dataset;
+  if (d.note) {
+    const id = S.me + "_" + S.date;
+    const cur = Object.assign({ m: S.me, date: S.date, week: weekOf(S.date), done: [], hours: 0, pages: 0 }, S.checks[id] || {}, { [d.note]: t.value });
+    cur.pct = pct(cur); S.checks[id] = cur; queueWrite("checks/" + id, cur, 900); setSaved("…");
+  } else if (d.call) {
+    const n = Math.max(weekOf(iso(new Date())), 1) + S.weekOffset;
+    const c = Object.assign({ week: n }, S.calls["w" + n] || {}, { [d.call]: t.value });
+    S.calls["w" + n] = c; queueWrite("calls/w" + n, c, 900); setSaved("…");
+  } else if (d.name != null) {
+    S.names[Number(d.name)] = t.value.slice(0, 24); renderWho();
+    queueWrite("config/team", { names: S.names }, 900);
+  }
+});
+
+// ---- data ----
+render();
+(async () => {
+  const c = window.claude;
+  const db = c && c.use ? await c.use("db") : null;
+  S.db = db; S.ready = true;
+  if (!db) { render(); return; }
+  const user = await c.use("user");
+  if (user) { try { const w = await user.can("data.write"); if (w === false) S.canWrite = false; } catch {} }
+  const typing = () => { const a = document.activeElement; return a && (a.tagName === "TEXTAREA" || a.tagName === "INPUT"); };
+  const soft = () => { if (!typing()) render(); };
+  db.doc("config/team").onSnapshot(s => {
+    if (s.exists && Array.isArray(s.data().names)) {
+      const n = s.data().names; S.names = DEFAULT_NAMES.map((d, i) => n[i] || d);
+      if (!typing()) renderWho();
+    }
+  });
+  db.collection("checks").onSnapshot(snap => {
+    snap.docChanges().forEach(ch => {
+      const id = ch.doc.id;
+      if (pending.has("checks/" + id) || inflight.has("checks/" + id)) return;
+      if (ch.type === "removed") delete S.checks[id]; else S.checks[id] = ch.doc.data();
+    });
+    soft();
+  });
+  db.collection("tasks").onSnapshot(snap => { S.tasks = snap.docs.map(d => Object.assign({ id: d.id }, d.data())); soft(); });
+  db.collection("goals").onSnapshot(snap => { S.goals = snap.docs.map(d => Object.assign({ id: d.id }, d.data())); soft(); });
+  db.collection("calls").onSnapshot(snap => {
+    snap.docs.forEach(d => { if (!pending.has("calls/" + d.id)) S.calls[d.id] = d.data(); }); soft();
+  });
+  render();
+})();
+})();
+</script>
