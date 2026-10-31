@@ -1,0 +1,25 @@
+{
+  "handle": "@kisowss",
+  "scenes": [
+    {"img": "above-clouds-back.jpg", "y": 0.5, "dur": 2.0,
+     "narrator": "Эпизод 1. Парень, который всё откладывал",
+     "bubble": "Начну, когда буду готов…", "bubble_at": [0.42, 0.42], "tail_to": [0.55, 0.52]},
+    {"img": "aquarium-shark.jpg", "x": 0.6, "y": 0.5, "dur": 1.8,
+     "narrator": "Прошёл месяц…",
+     "bubble": "А вдруг не получится?", "bubble_at": [0.4, 0.38], "tail_to": [0.66, 0.5]},
+    {"img": "home-white-robe.jpg", "y": 0.45, "dur": 1.6,
+     "narrator": "Ещё месяц…",
+     "bubble": "Ещё немного подумаю", "bubble_at": [0.5, 0.36], "tail_to": [0.5, 0.48]},
+    {"img": "ski-pose-lift.jpg", "x": 0.35, "y": 0.45, "dur": 1.8,
+     "narrator": "И тогда я просто попробовал", "bam": "БАМ!"},
+    {"img": "batu-caves.jpg", "x": 0.8, "y": 0.55, "dur": 1.6,
+     "narrator": "Ступенька за ступенькой"},
+    {"img": "kl-merdeka-square.jpg", "x": 0.5, "y": 0.6, "dur": 1.6,
+     "bubble": "Мир оказался больше!", "bubble_at": [0.5, 0.33], "tail_to": [0.5, 0.48]},
+    {"img": "yurt-portrait-fur.jpg", "y": 0.15, "dur": 1.6,
+     "narrator": "А корни остались со мной", "narrator_y": 1400},
+    {"img": "osh-viewpoint-arms-up.jpg", "y": 0.6, "dur": 2.6,
+     "narrator": "Конец?",
+     "bubble": "Нет. Только начало!", "bubble_at": [0.5, 0.33], "tail_to": [0.5, 0.5]}
+  ]
+}
