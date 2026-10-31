@@ -13,3 +13,4 @@
 | 29.10 | рилс | Фото-дамп | photodump | Начал пробовать | reels/photodump-probuy |
 | 30.10 | сторис | Заметки | notes_render | Всё к лучшему | carousels/workspace/stories-k-luchshemu |
 | 30.10 | рилс | «Да… но» (сплит-экран, тренд 07.10) | split_render | Всё к лучшему | reels/da-no-k-luchshemu |
+| 31.10 | карусель | Фото-дневник: фото + урок (photo dump, окт.) | journal_render | Уроки этого года | carousels/workspace/uroki-goda |

@@ -51,6 +51,7 @@ description: Делает пост или сторис для @kisowss под с
 | `carousels/warning_render.py` | Пародия «деликатный контент» |
 | `reels/photodump.py` | Рилс из фото под бит с текстом |
 | `reels/split_render.py` | Рилс «Да… но» / сплит-экран |
+| `carousels/journal_render.py` | Фото-дневник: фото на весь слайд + один урок, плёночная обработка, шрифт Lora |
 | `carousels/render.py` | Старый тёмный шаблон — не использовать (не понравился) |
 
 Новый тренд без рендера → написать новый скрипт рядом с похожими (Pillow + ffmpeg, шрифт `carousels/assets/fonts/Inter.ttf`; если нет — скачать с `cdn.jsdelivr.net/gh/google/fonts@main/ofl/inter/Inter%5Bopsz,wght%5D.ttf`).
