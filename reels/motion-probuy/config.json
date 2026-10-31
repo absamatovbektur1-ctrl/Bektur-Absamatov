@@ -1,0 +1,15 @@
+{
+  "shots": [
+    {"img": "above-clouds-back.jpg", "y": 0.45, "dur": 1.5, "text": "Год назад я всё откладывал"},
+    {"img": "aquarium-shark.jpg", "x": 0.62, "dur": 1.0, "in": "whip", "dir": "left"},
+    {"img": "samarkand-madrasa.jpg", "y": 0.55, "dur": 1.0, "in": "page"},
+    {"img": "kl-merdeka-square.jpg", "y": 0.6, "dur": 1.0, "in": "zoom", "text": "Потом начал пробовать"},
+    {"img": "batu-caves.jpg", "x": 0.8, "dur": 0.9, "in": "flip"},
+    {"img": "ski-pose-lift.jpg", "x": 0.35, "y": 0.45, "dur": 0.9, "in": "whip", "dir": "up"},
+    {"img": "meadow-mountains-tshirt.jpg", "y": 0.5, "dur": 0.9, "in": "swipe", "dir": "left"},
+    {"img": "osh-viewpoint-arms-crossed.jpg", "y": 0.55, "dur": 0.9, "in": "drop", "tilt": -4},
+    {"img": "yurt-komuz.jpg", "x": 0.45, "dur": 0.9, "in": "drop", "tilt": 5},
+    {"img": "yurt-portrait-fur.jpg", "y": 0.25, "dur": 1.0, "in": "spin"},
+    {"img": "osh-viewpoint-arms-up.jpg", "y": 0.6, "dur": 2.2, "in": "zoom", "text": "И это только начало"}
+  ]
+}
